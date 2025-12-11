@@ -1,9 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
+import CategoryList from './components/CategoryList.jsx';
 import Login from './components/Login.jsx';
 import Register from './components/Register.jsx';
-import ProtectedRoute from './components/ProtectedRoute.jsx'; // <-- NOVO IMPORT
+import ProtectedRoute from './components/ProtectedRoute.jsx'; 
 
 const Home = () => <h1>Página Inicial</h1>;
 const Dashboard = () => <h1>Dashboard (Área Protegida)</h1>;
@@ -37,6 +38,15 @@ function App() {
                 <AdminPage />
               </ProtectedRoute>
             }
+          />
+          <Route 
+            path="management/categories" 
+            element={
+              <ProtectedRoute>
+                {/* Aqui, idealmente, checaríamos se o usuário é ADMIN ou LIBRARIAN */}
+                <CategoryList/>
+              </ProtectedRoute>
+            } 
           />
         </Route>
       </Routes>

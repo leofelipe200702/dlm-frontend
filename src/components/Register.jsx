@@ -1,72 +1,133 @@
 import React, { useState } from 'react';
 import AuthService from '../services/auth.service';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+// Importando componentes do MUI
+import { TextField, Button, Box, Typography, Container, Alert, Paper, Grid } from '@mui/material';
 
 const Register = () => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [successful, setSuccessful] = useState(false);
-    const [message, setMessage] = useState('');
-    const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [successful, setSuccessful] = useState(false);
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        setMessage('');
-        setSuccessful(false);
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    setSuccessful(false);
 
-        try {
-            // Chama o serviço de registro. A role "admin" será atribuída se passada, 
-            // mas aqui mantemos simples e deixamos o backend atribuir ROLE_USER (o padrão)
-            await AuthService.register(username, email, password);
+    try {
+      // Chama o serviço de registro
+      await AuthService.register(username, email, password); 
+      
+      setMessage('Registro realizado com sucesso! Você será redirecionado para o Login.');
+      setSuccessful(true);
+      
+      // Navega automaticamente para o login após 2 segundos
+      setTimeout(() => navigate('/login'), 2000); 
 
-            setMessage('Registro realizado com sucesso! Faça login.');
-            setSuccessful(true);
-            // Navega automaticamente para o login após o sucesso
-            setTimeout(() => navigate('/login'), 2000);
+    } catch (error) {
+      // Captura e exibe a mensagem de erro detalhada do Backend
+      const resMessage =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
 
-        } catch (error) {
-            const resMessage =
-                (error.response?.data?.message) ||
-                error.message ||
-                error.toString();
-            setMessage(resMessage || "Erro durante o registro.");
-            setSuccessful(false);
-        }
-    };
+      setMessage(resMessage || "Erro durante o registro.");
+      setSuccessful(false);
+    }
+  };
 
-    return (
-        <div className="container mt-5">
-            <h2>Registro de Usuário</h2>
-            <form onSubmit={handleRegister}>
-                {/* Exemplo do campo Username */}
-                <div className="form-group mb-3">
-                    <label htmlFor="username">Usuário</label>
-                    <input type="text" className="form-control" id="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-                </div>
+  return (
+    <Container component="main" maxWidth="sm">
+      <Paper elevation={3} sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        
+        <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+          Criar Nova Conta
+        </Typography>
 
-                {/* Campo Email */}
-                <div className="form-group mb-3">
-                    <label htmlFor="email">Email</label>
-                    <input type="email" className="form-control" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                </div>
+        <Box component="form" onSubmit={handleRegister} noValidate sx={{ mt: 1 }}>
+          <Grid container spacing={2}>
+            
+            {/* Campo Usuário */}
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                id="username"
+                label="Usuário"
+                name="username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </Grid>
 
-                {/* Campo Senha */}
-                <div className="form-group mb-3">
-                    <label htmlFor="password">Senha</label>
-                    <input type="password" className="form-control" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                </div>
+            {/* Campo Email */}
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                id="email"
+                label="Email"
+                name="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Grid>
+            
+            {/* Campo Senha */}
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                name="password"
+                label="Senha"
+                type="password"
+                id="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Grid>
+            
+          </Grid>
+          
+          {/* Botão de Envio */}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="success" // Cor de sucesso para Registro
+            sx={{ mt: 3, mb: 2 }}
+            disabled={successful} // Desabilita o botão após o sucesso para evitar envios duplicados
+          >
+            Registrar
+          </Button>
 
-                <button type="submit" className="btn btn-success">Registrar</button>
+        </Box>
+        
+        {/* Mensagens de Feedback */}
+        {message && (
+          <Alert severity={successful ? "success" : "error"} sx={{ width: '100%', mt: 2 }}>
+            {message}
+          </Alert>
+        )}
 
-                {message && (
-                    <div className={`alert ${successful ? 'alert-success' : 'alert-danger'} mt-3`} role="alert">
-                        {message}
-                    </div>
-                )}
-            </form>
-        </div>
-    );
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          Já tem conta? 
+          <RouterLink to="/login" style={{ textDecoration: 'none', marginLeft: '5px' }}>
+            Faça Login
+          </RouterLink>
+        </Typography>
+
+      </Paper>
+    </Container>
+  );
 };
 
 export default Register;
